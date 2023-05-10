@@ -1,6 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 import math
+
 class Sat:
     def __init__(self,file, len):
         self.quant_var = None
@@ -117,6 +118,7 @@ class Sat:
                         self.solution.append(j)
                     self.fitzinho.append(100-self.fit_neighbor)
                     self.fit_solution = self.fit_neighbor
+            
                     
 
         return self.fit_solution
@@ -148,7 +150,7 @@ class Sat:
 
     def save_info(self, file):
         file = open(file,'a')
-        file.write(f'{self.fitness(0)} {self.interation_number}\n')
+        file.write(f'{self.fit_solution} {self.interation_number}\n')
         file.close()
 
     def randon_solution(self):
@@ -156,8 +158,7 @@ class Sat:
         for i in self.solution:
             self.neighbor.append(random.randint(0, 1))
 
-    def interactions2(self,quant):
-        grafico = []
+    def interactions2(self,quant,namesave):
         aux =0
         for i in range(0,quant):
             self.randon_solution()
@@ -167,10 +168,9 @@ class Sat:
                 for i in self.neighbor:
                     self.solution.append(i)
 
-            grafico.append(self.fitness(1))
+            self.fitzinho.append(self.fitness(1))
         
-        plt.plot(grafico)
-        plt.show()
+        self.plot_fitness_vizinho(namesave)
 
         return (aux, self.fitness(0))
 

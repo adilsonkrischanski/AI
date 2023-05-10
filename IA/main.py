@@ -35,12 +35,12 @@ def generate_pack(name):
 
 if __name__=='__main__':
    # for i in range(0,51):
-      sat = Sat('./Instancias/uf250-01.cnf',3)
-      sat.upload()
-      sat.generate_initial_solution()
-      sat.generate_neighbor(15)
-      print(sat.interation(250000,15))
-      # pack_name = f'solutions/250/{datetime.datetime.now().time()}'
+      # sat = Sat('./Instancias/uf250-01.cnf',3)
+      # sat.upload()
+      # sat.generate_initial_solution()
+      # sat.generate_neighbor(15)
+      # print(sat.interation(25000,15))
+      # pack_name = f'solutions/Randon/{datetime.datetime.now().time()}'
       # generate_pack(pack_name)
       # sat.plot_queda_temp(f'{pack_name}/250-250000-30-4')
       # sat.plot_fitness_vizinho(f'{pack_name}/250-250000-30-4')
@@ -49,12 +49,17 @@ if __name__=='__main__':
 
 
 # if __name__=='__main__':
-#    for i in range(0,10):
-#       sat = Sat('./Instancias/uf20-01.cnf',3)
-#       sat.upload()
-#       sat.generate_initial_solution()
-#       sat.randon_solution()
-#       print(sat.interactions2(2000))
+   for i in range(0,10):
+      sat = Sat('./Instancias/uf100-01.cnf',3)
+      pack_name = f'solutions/Randon/{datetime.datetime.now().time()}'
+      generate_pack(pack_name)
+      sat.upload()
+      sat.generate_initial_solution()
+      sat.randon_solution()
+      sat.interactions2(250000,f'{pack_name}')
+ 
+     
+      sat.save_info('./solutions/100randon.txt')
       
 
 
