@@ -1,8 +1,13 @@
-import random
+import matplotlib.pyplot as plt
+import numpy as np
 
-n = random.randint(0, 10) # número de valores a serem gerados entre 0 e 10
+# Definindo os dados
+dados = np.random.normal(0, 1, size=100)
 
-# Gera uma lista de n valores aleatórios entre 0 e 100
-aleatorios = [random.randint(0, 100) for _ in range(n)]
+# Definindo o intervalo
+intervalo = [-2, 2]
 
-print(aleatorios) # Imprime a lista gerada
+# Criando o box plot com intervalo definido
+plt.boxplot(dados, whis=[intervalo[0], intervalo[1]])
+plt.ylim([intervalo[0]-1, intervalo[1]+1])
+plt.show()
