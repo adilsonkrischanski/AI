@@ -1,4 +1,8 @@
 from Sat import Sat
+from simulated_anneling import Anneling
+from greedy_search import Greedy
+from random_search import Randon_Search
+
 import os 
 import datetime
 
@@ -7,62 +11,35 @@ def generate_pack(name):
    caminho = os.path.join(os.getcwd(),name)
    os.mkdir(caminho)
 
-# if __name__=='__main__':
-   # for i in range(0,51):
-   #    sat = Sat('./Instancias/uf20-01.cnf',3)
-   #    sat.upload()
-   #    sat.generate_initial_solution()
-   #    sat.generate_neighbor(5)
-   #    print(sat.interation(10000,5))
-   #    pack_name = f'solutions/10/{datetime.datetime.now().time()}'
-   #    generate_pack(pack_name)
-   #    sat.plot_queda_temp(f'{pack_name}/10-1000-5-4')
-   #    sat.plot_fitness_vizinho(f'{pack_name}/10-1000-5-4')
-   #    sat.save_info('./solutions/10.txt')
 
 # if __name__=='__main__':
-#    for i in range(0,51):
-#       sat = Sat('./Instancias/uf100-01.cnf',3)
-#       sat.upload()
-#       sat.generate_initial_solution()
-#       sat.generate_neighbor(15)
-#       print(sat.interation(250000,10)) #15
-#       pack_name = f'solutions/100/{datetime.datetime.now().time()}'
-#       generate_pack(pack_name)
-#       sat.plot_queda_temp(f'{pack_name}/100-250000-10-4')
-#       sat.plot_fitness_vizinho(f'{pack_name}/100-250000-10-4')
-#       sat.save_info('./solutions/100.txt')
+   # for i in range(0,10):
+   #    a = Anneling('./Instancias/uf20-01.cnf', 3)
+   #    a.generate_initial_solution()
+   #    a.generate_neighbor(4)
+   #    print(a.interation(250000,4))
+   #    pack_name = f'solutions/SA/20/interaction{i+1}'
+   #    a.plot_queda_temp(pack_name,100)
+   #    a.save_info('solutions/SA/20.txt')
+   
+# if __name__=='__main__':
+#    for i in range(0,10):
+#       a = Randon_Search('./Instancias/uf20-01.cnf', 3)
+#       a.generate_initial_solution()
+#       print(a.interation(250000))
+#       pack_name = f'solutions/RS/20/interaction{i+1}'
+#       a.plot_queda_temp(pack_name,20)
+#       a.save_info('solutions/RS/20.txt')
 
 if __name__=='__main__':
-   # for i in range(0,51):
-      # sat = Sat('./Instancias/uf250-01.cnf',3)
-      # sat.upload()
-      # sat.generate_initial_solution()
-      # sat.generate_neighbor(15)
-      # print(sat.interation(25000,15))
-      # pack_name = f'solutions/Randon/{datetime.datetime.now().time()}'
-      # generate_pack(pack_name)
-      # sat.plot_queda_temp(f'{pack_name}/250-250000-30-4')
-      # sat.plot_fitness_vizinho(f'{pack_name}/250-250000-30-4')
-      # sat.save_info('./solutions/250.txt')
-
-
-
-# if __name__=='__main__':
    for i in range(0,10):
-      sat = Sat('./Instancias/uf100-01.cnf',3)
-      pack_name = f'solutions/Randon/{datetime.datetime.now().time()}'
-      generate_pack(pack_name)
-      sat.upload()
-      sat.generate_initial_solution()
-      sat.randon_solution()
-      sat.interactions2(250000,f'{pack_name}')
- 
-     
-      sat.save_info('./solutions/100randon.txt')
-      
-
-
-      
+      a = Greedy('./Instancias/uf20-01.cnf', 3)
+      a.generate_initial_solution()
+      a.generate_neighbor(10)
+      print(a.interation(250000,10))
+      pack_name = f'solutions/GS/20/interaction{i+1}'
+      a.plot_queda_temp(pack_name,20)
+      a.save_info('solutions/GS/20.txt')
+   
    
 
