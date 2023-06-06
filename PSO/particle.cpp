@@ -1,5 +1,6 @@
 #include <vector>
 #include <random>
+#include <cmath>
 
 #define DIM 10
 
@@ -15,10 +16,13 @@ class Particle {
     int min_speed = 10;
 
     double atual_fitness;
-    
+
+
     std::vector<double> atual_position[DIM];
     std::vector<double> best_position[DIM];
     std::vector<double> speed_particle[DIM];
+    
+   
 
 
 public:
@@ -74,8 +78,46 @@ public:
     }
   
 
-    double fitness() {
-      
+    double fitness_1() {
+
+        int top=0;
+        int top1=0;
+        int top2=1;
+        for(int j=0;j<DIM;j++) {
+            top1=top1+pow(((*atual_position)[j]),(double)2);
+            top2=top2*cos(((((*atual_position)[j])/sqrt((double)(j+1)))*M_PI)/180);
+            }
+
+        top=(1/(double)4000)*top1-top2+1;
+
+        return top;
+    }
+    
+    double fitness_2() {
+        int aux = 0;
+        int aux1 = 0;
+        for (int i = 0; i < DIM; i++) {
+            aux += (*atual_position)[i]*(*atual_position)[i];
+        }
+        for (int i = 0; i < DIM; i++){
+            aux1 += cos(2.0*M_PI*(*atual_position)[i]);
+        }
+
+        return (-20.0*(exp(-0.2*sqrt(1.0/(float)DIM*aux)))-exp(1.0/(float)DIM*aux1)+20.0+exp(1));
+
+    }
+
+
+    std::vector<double> getAtualPosition() {
+        return *atual_position;
+    }
+
+    std::vector<double> getBestPosition() {
+        return *best_position;
+    }
+
+    std::vector<double> getSpeedParticle() {
+        return *speed_particle;
     }
 
 
