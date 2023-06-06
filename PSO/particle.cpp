@@ -11,19 +11,17 @@ class Particle {
     private :
     int lower_bound = LOWER_BOUND;
     int upper_bound = UPPER_BOUND;
-    int contentaion_factor = 1;
+    int contentation_factor = 1;
     int max_speed = 10;
-    int min_speed = 10;
+    int min_speed = -10;
 
     double atual_fitness;
+    double best_fitness;
 
 
     std::vector<double> atual_position[DIM];
     std::vector<double> best_position[DIM];
     std::vector<double> speed_particle[DIM];
-    
-   
-
 
 public:
 
@@ -44,7 +42,7 @@ public:
             vel_best->push_back(sqrt((*best_position)[i]*(*best_position)[i] +  (*atual_position)[i]*(*atual_position)[i]));
             vel_global_best->push_back(sqrt((*best_global_position)[i]*(*best_global_position)[i] +  (*atual_position)[i]*(*atual_position)[i]));
 
-            (*speed_particle)[i] += (*vel_best)[i] *contentaion_factor +(*vel_global_best)[i]*contentaion_factor;
+            (*speed_particle)[i] += (*vel_best)[i] *contentation_factor +(*vel_global_best)[i]*contentation_factor;
             if ((*speed_particle)[i]> max_speed){
                 (*speed_particle)[i] = max_speed;
             }
@@ -70,12 +68,6 @@ public:
         }
 
     }
-
-    void updateBest(std::vector<int>* best_global_position) {
-        for (int i = 0; i < DIM; ++i){
-            (*best_position)[i] = (*best_global_position)[i];
-        }
-    }
   
 
     double fitness_1() {
@@ -90,6 +82,15 @@ public:
 
         top=(1/(double)4000)*top1-top2+1;
 
+        atual_fitness = top;
+        if (best_fitness < atual_fitness){
+            best_fitness = atual_fitness;
+            for(int i=0; i< DIM; i++){
+                (*best_position)[i] = (*atual_position)[i];
+            }
+
+            
+        }
         return top;
     }
     
@@ -102,9 +103,9 @@ public:
         for (int i = 0; i < DIM; i++){
             aux1 += cos(2.0*M_PI*(*atual_position)[i]);
         }
+        atual_fitness = (-20.0*(exp(-0.2*sqrt(1.0/(float)DIM*aux)))-exp(1.0/(float)DIM*aux1)+20.0+exp(1));
 
         return (-20.0*(exp(-0.2*sqrt(1.0/(float)DIM*aux)))-exp(1.0/(float)DIM*aux1)+20.0+exp(1));
-
     }
 
 
