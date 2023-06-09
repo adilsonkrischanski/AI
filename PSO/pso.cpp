@@ -2,14 +2,16 @@
 
 #include <vector>
 
-#define NUMBER_PARTICLES 10
-#define MAX_INTERACTIONS 10
+#define NUMBER_PARTICLES 50
+#define MAX_INTERACTIONS 10000
 
 class PSO{
     private:
         Particle particles[NUMBER_PARTICLES] ;
         double global_best_fitnees;
-        std::vector<double>* global_best_position;
+        double atual_fitness;
+        double medium_fitness;
+        double* global_best_position;
 
     public:
 
@@ -21,43 +23,45 @@ class PSO{
             if(i==0){
                 global_best_fitnees = particles[i].fitness_1();
             }
-            // printf("%f\n", particles[i].fitness_1());
         }
-        
 
-        //  for(int i=0; i<MAX_INTERACTIONS;i++){
+        for(int i=0; i<MAX_INTERACTIONS;i++){
+            medium_fitness = 0;
             
-        //     double atual_fitness = particles[i].fitness_1();
+            for(int j = 0; j < NUMBER_PARTICLES; j++){
 
-        //     if (global_best_fitnees < atual_fitness){
-        //         global_best_fitnees = atual_fitness;
-        //         global_best_position = particles[i].getAtualPosition();
+                atual_fitness = particles[j].fitness_1();
+                medium_fitness += atual_fitness;
 
-        //         for(int j =0; j<10;j++){
-        //             printf("%d",global_best_position[i]);
-        //         }
-        //     } 
+                if (atual_fitness < global_best_fitnees){
+                    global_best_fitnees = atual_fitness;
+                    global_best_position = particles[j].getAtualPosition();
+                }
+            }
 
-        //     // for(int j = 0; j < NUMBER_PARTICLES; j++){
-        //     //     printf("ENTREI NO FOR");
-        //     //     particles[i].updateVelocity(global_best_position);
-        //     //     printf("update velocidade check");
+            for(int j = 0; j < NUMBER_PARTICLES; j++){
 
+                particles[j].updateVelocity(global_best_position);
+                particles[j].update_position();
+            }
 
-        //     //     particles[i].update_position();
-        //     // }
+            printf("\nBEST: %f  ", global_best_fitnees);
+            printf("\nMEDIUM: %f  ", (medium_fitness/(double)NUMBER_PARTICLES));
+
+            // printf("\nPOSITION: ");
+
+            // for(int i = 0; i< DIM;i++){
+            //     printf("%f ",global_best_position[i]);
+            // }
 
            
-        //     // update beste global position
 
-        //     //passar o melhor pra todas as particulas
+        }
 
-        //     //particulas integem
+        
+        
 
-        //     // TODO AGAIN
 
-        //      printf("BEST: %f  \n", global_best_fitnees);
-        // }
 
 
 

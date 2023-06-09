@@ -2,166 +2,102 @@
 #include <vector>
 #include <random>
 #include <cmath>
-#include <thread>
-#include <mutex>
 
-const int NUM_PARTICLES = 20;
-const int NUM_DIMENSIONS = 2;
-const double LOWER_BOUND = -10.0;
-const double UPPER_BOUND = 10.0;
-const int MAX_ITERATIONS = 100;
-const double INERTIA_WEIGHT = 0.7;
-const double COGNITIVE_WEIGHT = 1.5;
-const double SOCIAL_WEIGHT = 1.5;
-
-std::mutex g_mutex;
-
-double fitness(const std::vector<double>& position) {
-    // Função de avaliação (fitness) - exemplo: função esfera (sphere function)
+// Função de aptidão (objetivo) a ser minimizada (Griewank)
+double objectiveFunction(const std::vector<double>& x) {
     double sum = 0.0;
-    for (double coord : position) {
-        sum += std::pow(coord, 2);
+    double product = 1.0;
+    for (int i = 0; i < x.size(); i++) {
+        sum += x[i] * x[i];
+        product *= std::cos(x[i] / std::sqrt(i + 1));
     }
-    return sum;
+    return 1 + sum / 4000 - product;
 }
 
-class Particle {
-public:
-    Particle() {
-        position_.resize(NUM_DIMENSIONS);
-        velocity_.resize(NUM_DIMENSIONS);
-        bestPosition_.resize(NUM_DIMENSIONS);
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<double> dist(LOWER_BOUND, UPPER_BOUND);
-
-        for (int j = 0; j < NUM_DIMENSIONS; ++j) {
-            position_[j] = dist(gen);
-            velocity_[j] = dist(gen);
-            bestPosition_[j] = position_[j];
-        }
-
-        bestFitness_ = fitness(position_);
-    }
-
-    void update(const std::vector<double>& globalBestPosition) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<double> dist(0.0, 1.0);
-
-        for (int i = 0; i < NUM_DIMENSIONS; ++i) {
-            double r1 = dist(gen);
-            double r2 = dist(gen);
-            velocity_[i] = INERTIA_WEIGHT * velocity_[i]
-                + COGNITIVE_WEIGHT * r1 * (bestPosition_[i] - position_[i])
-                + SOCIAL_WEIGHT * r2 * (globalBestPosition[i] - position_[i]);
-
-            position_[i] += velocity_[i];
-
-            if (position_[i] < LOWER_BOUND) {
-                position_[i] = LOWER_BOUND;
-            }
-            else if (position_[i] > UPPER_BOUND) {
-                position_[i] = UPPER_BOUND;
-            }
-        }
-
-        double currentFitness = fitness(position_);
-        if (currentFitness < bestFitness_) {
-            bestFitness_ = currentFitness;
-            bestPosition_ = position_;
-        }
-    }
-
-    double getBestFitness() const {
-        return bestFitness_;
-    }
-
-    std::vector<double> getBestPosition() const {
-        return bestPosition_;
-    }
-
-private:
-    std::vector<double> position_;
-    std::vector<double> velocity_;
-    std::vector<double> bestPosition_;
-    double bestFitness_;
+// Estrutura de uma partícula
+struct Particle {
+    std::vector<double> position;
+    std::vector<double> velocity;
+    std::vector<double> bestPosition;
+    double bestFitness;
 };
 
-class PSO {
-public:
-    PSO() {
-        particles_.reserve(NUM_PARTICLES);
-        for (int i = 0; i < NUM_PARTICLES; ++i) {
-            particles_.push_back(Particle());
-        }
-    }
-
-    void runPSO() {
-        for (int iteration = 0; iteration < MAX_ITERATIONS; ++iteration) {
-            std::vector<std::thread> threads;
-            for (Particle& particle : particles_) {
-                threads.emplace_back(&Particle::update, &particle, globalBestPosition_);
-            }
-
-            for (std::thread& thread : threads) {
-                thread.join();
-            }
-
-            updateGlobalBest();
-        }
-    }
-
-    std::vector<double> getGlobalBestPosition() const {
-        return globalBestPosition_;
-    }
-
-private:
-    std::vector<Particle> particles_;
-    std::vector<double> globalBestPosition_;
-
-    void updateGlobalBest() {
-        double globalBestFitness = std::numeric_limits<double>::infinity();
-        for (const Particle& particle : particles_) {
-            double particleBestFitness = particle.getBestFitness();
-            if (particleBestFitness < globalBestFitness) {
-                globalBestFitness = particleBestFitness;
-                globalBestPosition_ = particle.getBestPosition();
-            }
-        }
-    }
-};
-
-class PSOManager {
-public:
-    std::vector<double> runPSO() {
-        PSO pso;
-        std::vector<std::thread> threads;
-
-        for (int i = 0; i < NUM_PARTICLES; ++i) {
-            threads.emplace_back(&PSO::runPSO, &pso);
-        }
-
-        for (std::thread& thread : threads) {
-            thread.join();
-        }
-
-        return pso.getGlobalBestPosition();
-    }
-};
+// Parâmetros do algoritmo PSO
+const int numParticles = 20;
+const int numDimensions = 10;
+const int maxIterations = 10000;
+const double c1 = 2.0;   // Fator de aceleração cognitiva
+const double c2 = 2.0;   // Fator de aceleração social
+const double w = 0.7;    // Inércia
+const double searchSpaceMin = -600.0;
+const double searchSpaceMax = 600.0;
 
 int main() {
-    PSOManager psoManager;
-    std::vector<double> bestPosition = psoManager.runPSO();
+    // Inicialização do gerador de números aleatórios
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> distribution(searchSpaceMin, searchSpaceMax);
 
-    std::cout << "Best position found:";
-    for (double coord : bestPosition) {
-        std::cout << " " << coord;
+    // Inicialização das partículas
+    std::vector<Particle> particles(numParticles);
+    for (int i = 0; i < numParticles; i++) {
+        particles[i].position.resize(numDimensions);
+        particles[i].velocity.resize(numDimensions);
+        particles[i].bestPosition.resize(numDimensions);
+        particles[i].bestFitness = std::numeric_limits<double>::max();
+        
+        for (int j = 0; j < numDimensions; j++) {
+            particles[i].position[j] = distribution(gen);
+            particles[i].velocity[j] = 0.0;
+            particles[i].bestPosition[j] = particles[i].position[j];
+        }
+        
+        double fitness = objectiveFunction(particles[i].position);
+        if (fitness < particles[i].bestFitness) {
+            particles[i].bestFitness = fitness;
+            particles[i].bestPosition = particles[i].position;
+        }
+    }
+    
+    std::vector<double> globalBestPosition = particles[0].bestPosition;
+    double globalBestFitness = particles[0].bestFitness;
+
+    // Execução do algoritmo PSO
+    for (int iteration = 0; iteration < maxIterations; iteration++) {
+        for (int i = 0; i < numParticles; i++) {
+            for (int j = 0; j < numDimensions; j++) {
+                double r1 = distribution(gen);
+                double r2 = distribution(gen);
+                
+                particles[i].velocity[j] = w * particles[i].velocity[j] +
+                                           c1 * r1 * (particles[i].bestPosition[j] - particles[i].position[j]) +
+                                           c2 * r2 * (globalBestPosition[j] - particles[i].position[j]);
+                                           
+                particles[i].position[j] += particles[i].velocity[j];
+                particles[i].position[j] = std::max(std::min(particles[i].position[j], searchSpaceMax), searchSpaceMin);
+            }
+            
+            double fitness = objectiveFunction(particles[i].position);
+            if (fitness < particles[i].bestFitness) {
+                particles[i].bestFitness = fitness;
+                particles[i].bestPosition = particles[i].position;
+            }
+            
+            if (fitness < globalBestFitness) {
+                globalBestFitness = fitness;
+                globalBestPosition = particles[i].position;
+            }
+        }
+    }
+
+    // Resultados
+    std::cout << "Melhor solução encontrada:" << std::endl;
+    std::cout << "Posição: ";
+    for (int i = 0; i < numDimensions; i++) {
+        std::cout << globalBestPosition[i] << " ";
     }
     std::cout << std::endl;
-
-    std::cout << "Best fitness value: " << fitness(bestPosition) << std::endl;
+    std::cout << "Aptidão: " << globalBestFitness << std::endl;
 
     return 0;
 }
