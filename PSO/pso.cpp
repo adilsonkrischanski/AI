@@ -47,7 +47,7 @@ class PSO{
             for(int j = 0; j < NUMBER_PARTICLES; j++){
 
                 particles[j].updateVelocity(global_best_position);
-                particles[j].update_position();
+                // particles[j].update_position();
             }
 
             printf("\nBEST: %f  ", global_best_fitnees);

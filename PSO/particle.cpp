@@ -64,7 +64,8 @@ public:
                                 + COGNITIVE_WEIGHT * r1 * vel_best[i]
                                 + SOCIAL_WEIGHT * r2 * vel_global_best[i];
 
-
+            atual_position[i] += speed_particle[i];
+            
             // if (speed_particle[i] > max_speed) {
             //     double value = std::fmod(std::floor(speed_particle[i]), 10.0);
             //     speed_particle[i] = value ;
