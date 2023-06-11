@@ -1,11 +1,16 @@
 #include <vector>
 #include <random>
 #include <cmath>
+#include <time.h>
 
-#define DIM 1
+#define DIM 10
 
 #define LOWER_BOUND -600
 #define UPPER_BOUND 600
+
+#define INERTIA_WEIGHT 0.7
+#define COGNITIVE_WEIGHT 1.4
+#define SOCIAL_WEIGHT 1.4
 
 using namespace std;
 
@@ -13,8 +18,6 @@ class Particle {
     private :
     int lower_bound = LOWER_BOUND;
     int upper_bound = UPPER_BOUND;
-    double contention_factor_best = 2;
-    double contention_factor_social = 2;
     int max_speed = 10;
     int min_speed = -10;
 
@@ -25,14 +28,19 @@ class Particle {
     double atual_position[DIM];
     double best_position[DIM];
     double speed_particle[DIM];
-
+    
 public:
+
+    double rand_range(double min, double max) {
+        return min + ((double) rand() / RAND_MAX) * (max - min);
+    }
 
     
     void genetate_initial_solution(){
+        srand((unsigned int)clock());
         for(int i=0; i< DIM; i++){
-            atual_position[i] = (rand() % (UPPER_BOUND - LOWER_BOUND + 1)) + LOWER_BOUND;
-            speed_particle[i] = 0;
+            atual_position[i] = rand_range(LOWER_BOUND, UPPER_BOUND);
+            speed_particle[i] = 0.0;
             best_position[i] = atual_position[i];
             
         }
@@ -45,20 +53,26 @@ public:
         // printf("\nVELOCIDADE:\n");
 
         for (int i = 0; i < DIM; i++) {
+            double r1 = rand_range(0, 1);
+            double r2 = rand_range(0, 1);
 
             vel_best[i] = best_position[i] - atual_position[i];
             vel_global_best[i] = best_global_position[i] - atual_position[i];
 
-            speed_particle[i] += (vel_best[i] * contention_factor_social) + (vel_global_best[i] * contention_factor_social);
+            // speed_particle[i] += (vel_best[i] * contention_factor_social) + (vel_global_best[i] * contention_factor_best);
+            speed_particle[i] =  INERTIA_WEIGHT * speed_particle[i] 
+                                + COGNITIVE_WEIGHT * r1 * vel_best[i]
+                                + SOCIAL_WEIGHT * r2 * vel_global_best[i];
 
-            if (speed_particle[i] > max_speed) {
-                double value = std::fmod(std::floor(speed_particle[i]), 10.0);
-                speed_particle[i] = value ;
-            }
-            if (speed_particle[i] < min_speed) {
-                double value = std::fmod(std::floor(speed_particle[i]), 10.0);
-                speed_particle[i] = value;
-            }
+
+            // if (speed_particle[i] > max_speed) {
+            //     double value = std::fmod(std::floor(speed_particle[i]), 10.0);
+            //     speed_particle[i] = value ;
+            // }
+            // if (speed_particle[i] < min_speed) {
+            //     double value = std::fmod(std::floor(speed_particle[i]), 10.0);
+            //     speed_particle[i] = value;
+            // }
 
             // printf("%f ",speed_particle[i]);
         }
@@ -67,31 +81,31 @@ public:
 
 
     void update_position(){
-        for(int i=0; i< DIM; i++){
+        for(int i = 0; i< DIM; i++){
 
             atual_position[i] += speed_particle[i];
 
-            if( atual_position[i] > upper_bound){
-                atual_position[i] = upper_bound;
-                speed_particle[i] *= -1 ;
-            }
+            // if( atual_position[i] > upper_bound){
+            //     atual_position[i] = upper_bound;
+            //     speed_particle[i] *= -1 ;
+            // }
 
-            if(atual_position[i] < lower_bound){
-                atual_position[i] = lower_bound;
-                speed_particle[i] *= -1 ;
-            }
+            // if(atual_position[i] < lower_bound){
+            //     atual_position[i] = lower_bound;
+            //     speed_particle[i] *= -1 ;
+            // }
         }
 
     }
   
     double fitness_1() {
 
-        int top = 0;
-        int top1 = 0;
-        int top2 = 1;
+        double top = 0;
+        double top1 = 0;
+        double top2 = 1;
         for(int j = 0; j < DIM; j++) {
             top1 = top1 + pow((atual_position[j]), (double)2);
-            top2 = top2 * cos((((atual_position[j]) / sqrt((double)(j+1))) * M_PI)/180);
+            top2 = top2 * cos((((atual_position[j]) / (double) sqrt((double)(j+1))) * M_PI)/180);
             }
 
         top = (1/(double)4000) * top1 - top2 + 1;

@@ -3,7 +3,7 @@
 #include <vector>
 
 #define NUMBER_PARTICLES 50
-#define MAX_INTERACTIONS 10000
+#define MAX_INTERACTIONS 100000
 
 class PSO{
     private:
@@ -16,6 +16,8 @@ class PSO{
     public:
 
     void run(){
+        global_best_position = (double *) malloc(sizeof(double)*DIM);
+
 
         for(int i=0; i<NUMBER_PARTICLES;i++){
             
@@ -35,7 +37,10 @@ class PSO{
 
                 if (atual_fitness < global_best_fitnees){
                     global_best_fitnees = atual_fitness;
-                    global_best_position = particles[j].getAtualPosition();
+                    for (int k = 0; k < DIM; k++){
+                        global_best_position[k] = particles[j].getAtualPosition()[k];
+                    }
+                    // global_best_position = particles[j].getAtualPosition();
                 }
             }
 
